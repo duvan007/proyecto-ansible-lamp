@@ -1,0 +1,11 @@
+---
+- name: Configurar llaves SSH en los nodos
+  hosts: all
+  become: true  # Recomendado para asegurar permisos sobre /home/ubuntu/.ssh
+  gather_facts: no
+  tasks:
+    - name: Añadir mi llave pública al servidor
+      ansible.posix.authorized_key:
+        user: admin_ti
+        state: present
+        key: "{{ lookup('file', '/home/dvelasquez/Ansible_LAMP/certificados_ssh/certificado_publico.pub') }}"

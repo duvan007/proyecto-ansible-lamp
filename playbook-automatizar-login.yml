@@ -1,0 +1,11 @@
+---
+- name: Configurar Sudo sin contraseña para el administrador
+  hosts: all
+  become: yes  # Necesitamos ser root para cambiar los permisos de sudoers
+  tasks:
+    - name: Crear archivo de configuración en sudoers.d
+      copy:
+        content: "admin_ti ALL=(ALL) NOPASSWD:ALL"
+        dest: /etc/sudoers.d/admin_ti
+        mode: '0440'  # Permisos de solo lectura, requeridos por seguridad
+        validate: '/usr/sbin/visudo -cf %s' # Valida que el archivo no tenga errores antes de guardarlo

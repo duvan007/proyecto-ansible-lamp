@@ -1,0 +1,11 @@
+# Archivos sensibles de Ansible
+*.vault
+vault_password*
+
+# Archivos temporales y cachés
+*.retry
+__pycache__/
+*.pyc
+
+# Archivos de entorno local
+.env

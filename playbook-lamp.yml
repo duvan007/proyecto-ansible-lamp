@@ -1,0 +1,112 @@
+---
+#configuracion servidor web  
+- name: Configurar servidor web (Apache + PHP)
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Actualizacion índice de paquetes apt
+      apt:
+        update_cache: yes
+
+    - name: Instalacion Apache2
+      apt:
+        name: apache2
+        state: present
+
+    - name: Iniciar y habilitar servicio Apache2
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Instalacion PHP y módulos requeridos
+      apt:
+        name:
+          - php
+          - libapache2-mod-php
+          - php-mysql
+        state: present
+
+    - name: Reiniciar Apache2 para aplicar cambios de PHP
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Crear página de prueba phpinfo
+      copy:
+        content: "<?php phpinfo(); ?>"
+        dest: /var/www/html/info.php
+        mode: '0644'
+
+    - name: Permitir tráfico HTTP/HTTPS en firewall (si UFW está activo)
+      ufw:
+        rule: allow
+        name: 'Apache Full'
+      when: ansible_os_family == "Debian"
+
+#instalacion MariaDB
+- name: Configurar servidor de base de datos (MariaDB)
+  hosts: dbservers
+  become: yes
+  vars:
+    mysql_root_password: "admin_ti"  # Cambiar por una contraseña fuerte
+  tasks:
+    - name: Actualizar índice de paquetes apt
+      apt:
+        update_cache: yes
+
+    - name: Instalacion servidor MariaDB
+      apt:
+        name:
+          - mariadb-server
+          - python3-mysqldb  # Requerido para módulos Ansible de MySQL
+        state: present
+
+    - name: Iniciar y habilitar servicio MariaDB
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Establecer contraseña root de MySQL
+      mysql_user:
+        name: root
+        password: "{{ mysql_root_password }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        state: present
+
+    - name: Eliminar usuarios anónimos
+      mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Eliminar base de datos de prueba
+      mysql_db:
+        name: test
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Deshabilitar acceso remoto al usuario root
+      mysql_user:
+        name: root
+        host: "{{ item }}"
+        state: absent
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+      loop:
+        - "::1"
+        - 127.0.0.1
+        - localhost
+      when: item != "localhost"  # Mantiene acceso local
+
+    - name: Permitir tráfico MySQL solo desde el servidor web (si UFW está activo)
+      ufw:
+        rule: allow
+        from_ip: 192.168.80.101  # IP del servidor web (ws01)
+        to_port: 3306
+        proto: tcp
+      when: ansible_os_family == "Debian"
