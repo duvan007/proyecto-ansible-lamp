@@ -10,7 +10,7 @@ La infraestructura se divide en dos grupos principales definidos en el inventari
 ## Estructura de Archivos
 - inventory.ini: Listado de servidores, variables de conexión y rutas de certificados.
 - playbook-instalacion-ssh.yml: Playbook para el despliegue de llaves públicas.
-- playbook-automatizar-login.yml: Configuración de privilegios sudo sin contraseña.
+- playbook-automatizar-login.yml: Configuración de privilegios sudo sin contraseña, para utomatizar acceso.
 - playbook-lamp.yml: Orquestación del despliegue de servicios Apache, PHP y MariaDB.
 - certificados_ssh/: Directorio local que almacena las llaves privadas y públicas.
 
@@ -22,7 +22,6 @@ La infraestructura se divide en dos grupos principales definidos en el inventari
 Comando: ansible-playbook playbook-instalacion-ssh.yml -i inventory.ini -k -K
 Descripción: Copia la llave pública del nodo de control a los nodos gestionados.
 Parámetros: -k solicita la contraseña de SSH y -K la contraseña de sudo del usuario remoto.
-Prerequisito: Generacion de certificado SSH
 
 ### 2. Verificación de Conectividad
 Comando: ansible all -i inventory.ini -m ping
