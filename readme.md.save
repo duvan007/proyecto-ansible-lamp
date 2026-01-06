@@ -23,6 +23,8 @@ Comando: ansible-playbook playbook-instalacion-ssh.yml -i inventory.ini -k -K
 Descripción: Copia la llave pública del nodo de control a los nodos gestionados.
 Parámetros: -k solicita la contraseña de SSH y -K la contraseña de sudo del usuario remoto.
 
+file:///home/dvelasquez/Im%C3%A1genes/Capturas%20de%20pantalla/Captura%20desde%202026-01-06%2011-57-53.png
+
 ### 2. Verificación de Conectividad
 Comando: ansible all -i inventory.ini -m ping
 Descripción: Valida que los nodos estén en línea y que Ansible tenga permisos de ejecución sobre ellos.
